@@ -5,7 +5,7 @@
     "Microsoft.CSharp": "4.0.1",
     "Microsoft.NETCore.Runtime.CoreCLR": "1.1.0-preview1-24513-02",
     "Microsoft.VisualBasic": "10.0.1",
-    "NETStandard.Library": "1.6.1-beta-24415-01",
+    "NETStandard.Library": "1.6.1-preview1-24508-08",
     "System.Buffers": "4.0.0",
     "System.Collections.Immutable": "1.2.0",
     "System.ComponentModel": "4.0.1",
