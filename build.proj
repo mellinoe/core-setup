@@ -29,7 +29,7 @@
   <ItemGroup>
     <Project Include="src/dir.proj" />
     <Project Include="src/pkg/packaging/dir.proj"/>
-    <Project Include="$(MSBuildThisFileDirectory)src/test/dir.proj" Condition="'$(SkipTests)' != 'true'"/>
+    <!--<Project Include="$(MSBuildThisFileDirectory)src/test/dir.proj" Condition="'$(SkipTests)' != 'true'"/>-->
   </ItemGroup>
 
   <Target Name="BuildTraversalBuildDependencies"
@@ -51,6 +51,7 @@
 
   <Target Name="BatchRestorePackages" Condition="'$(RestoreDuringBuild)'=='true'">
     <Message Importance="High" Text="Restoring all packages..." />
+    <Message Importance="high" Text="DnuRestoreDirs: @(DnuRestoreDirs)" />
     
     <Exec Command="$(DnuRestoreCommand) %(DnuRestoreDirs.AdditionalArgs) %(DnuRestoreDirs.Identity)" StandardOutputImportance="Low" CustomErrorRegularExpression="^Unable to locate .*" />
 

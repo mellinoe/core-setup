@@ -9,12 +9,12 @@
 
   <PropertyGroup>
     <BuildTargets>
-      BuildProjectsForNuGetPackages;
+      BuildProjectsForNuGetPackages;<!--
       PublishSharedFrameworkAndSharedHost;
       GenerateRuntimeGraph;
       CopyHostArtifactsToSharedFramework;
       CrossGenDirectory;
-      GenerateVersionFile;
+      GenerateVersionFile;-->
     </BuildTargets>
   </PropertyGroup>
 
@@ -29,7 +29,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageProjects Include="$(MSBuildThisFileDirectory)Microsoft.DotNet.PlatformAbstractions/project.json" />
+      <PackageProjects Include="$(MSBuildThisFileDirectory)Microsoft.DotNet.PlatformAbstractions/Microsoft.DotNet.PlatformAbstractions.csproj" />
       <PackageProjects Include="$(MSBuildThisFileDirectory)Microsoft.Extensions.DependencyModel/project.json" />
     </ItemGroup>
 
