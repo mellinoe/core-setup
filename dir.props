@@ -122,8 +122,9 @@
     <_DnuExcludeProjectJsonFiles Include="$(MSBuildThisFileDirectory)Bin\**\project.json" />
     <_DnuExcludeProjectJsonFiles Include="$(MSBuildThisFileDirectory)tools-local\**\project.json" />
     
-    <_ProjectJsonFiles Include="$(MSBuildThisFileDirectory)**\project.json" Exclude="@(_DnuExcludeProjectJsonFiles)" />
-    <DnuRestoreDirs Include="@(_ProjectJsonFiles->'%(RootDir)%(Directory)')">
+    <_ProjectsToRestoreExclusions Include="$(MSBuildThisFileDirectory)**\project.json" Exclude="@(_DnuExcludeProjectJsonFiles)" />
+    <_ProjectsToRestoreExclusions Include="$(MSBuildThisFileDirectory)src/managed/**/*.csproj" Exclude="@(_DnuExcludeProjectJsonFiles)" />
+    <DnuRestoreDirs Include="@(_ProjectsToRestoreExclusions->'%(RootDir)%(Directory)')">
       <AdditionalArgs>%(AdditionalArgs) --disable-parallel</AdditionalArgs>
     </DnuRestoreDirs>
     <!-- <DnuRestoreDirs Include="$(MSBuildThisFileDirectory)\tools-local\setuptools\independent\">

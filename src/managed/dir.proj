@@ -25,12 +25,12 @@
     <MakeDir  Condition="!Exists('$(pOutDir)')" Directories="$(pOutDir)" /> 
 
     <PropertyGroup>
-      <Args>--build-base-path $(IntermediateOutputForPackaging) --configuration $(ConfigurationGroup)</Args>
+      <Args>/p:Configuration=$(ConfigurationGroup)</Args>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageProjects Include="$(MSBuildThisFileDirectory)Microsoft.DotNet.PlatformAbstractions/Microsoft.DotNet.PlatformAbstractions.csproj" />
-      <PackageProjects Include="$(MSBuildThisFileDirectory)Microsoft.Extensions.DependencyModel/project.json" />
+      <PackageProjects Include="$(MSBuildThisFileDirectory)Microsoft.Extensions.DependencyModel/Microsoft.Extensions.DependencyModel.csproj" />
     </ItemGroup>
 
     <GetBuildArgsByFrameworks
