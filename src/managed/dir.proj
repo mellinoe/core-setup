@@ -9,12 +9,12 @@
 
   <PropertyGroup>
     <BuildTargets>
-      BuildProjectsForNuGetPackages;<!--
+      BuildProjectsForNuGetPackages;
       PublishSharedFrameworkAndSharedHost;
       GenerateRuntimeGraph;
       CopyHostArtifactsToSharedFramework;
       CrossGenDirectory;
-      GenerateVersionFile;-->
+      GenerateVersionFile;
     </BuildTargets>
   </PropertyGroup>
 
@@ -189,22 +189,8 @@
   </Target>
 
   <Target Name="RestoreLockedCoreHost">
-    <ItemGroup>
-      <ProjJsonLines Include='{' />
-      <ProjJsonLines Include='  "dependencies": {' />
-      <ProjJsonLines Include='    "Microsoft.NETCore.DotNetHostResolver"  :  "$(HostFullVersion)",' />
-      <ProjJsonLines Include='    "Microsoft.NETCore.DotNetHost"  :  "$(HostFullVersion)"' />
-      <ProjJsonLines Include='  },' />
-      <ProjJsonLines Include='  "frameworks": {' />
-      <ProjJsonLines Include='    "$(Framework)": {}' />
-      <ProjJsonLines Include='  },' />
-      <ProjJsonLines Include='  "runtimes": {' />
-      <ProjJsonLines Include='    "$(PackageTargetRid)": {}' />
-      <ProjJsonLines Include='  }' />
-      <ProjJsonLines Include='}' />
-    </ItemGroup>
-
     <PropertyGroup>
+      <LockedCoreHostProject>$(MSBuildThisFileDirectory)lockedhost/lockedhost.csproj</LockedCoreHostProject>
       <JsonDir>$(IntermediateOutputRootPath)lockedHostTemp</JsonDir>
     </PropertyGroup>
 
@@ -216,21 +202,21 @@
       Overwrite="true" />
     
     <PropertyGroup>
-      <RestoreArgs>--source https:%2F%2Fdotnet.myget.org/F/dotnet-core/api/v3/index.json --fallbacksource $(PackagesOutDir) --packages "$(PackagesDir.TrimEnd('/\'.ToCharArray()))"</RestoreArgs>
+      <RestoreArgs>--source https:%2F%2Fdotnet.myget.org/F/dotnet-core/api/v3/index.json --source $(PackagesOutDir) --packages "$(PackagesDir.TrimEnd('/\'.ToCharArray()))"</RestoreArgs>
+      <RestoreArgs>$(RestoreArgs) /p:BaseIntermediateOutputPath=$(JsonDir) /p:Framework=$(Framework) /p:HostFullVersion=$(HostFullVersion) /p:RuntimeIdentifiers=$(PackageTargetRid)</RestoreArgs>
     </PropertyGroup>  
 
-    <Exec Command="$(DotnetToolCommand) restore --verbosity verbose $(RestoreArgs)"
-          WorkingDirectory="$(JsonDir)"
+    <Exec Command="$(DotnetToolCommand) restore --verbosity detailed $(RestoreArgs) $(LockedCoreHostProject)"
           EnvironmentVariables="NUGET_PACKAGES=$(PackagesDir)" />
 
     <PropertyGroup>
-      <PublishArgs>--output $(CoreHostLockedDir) --no-build -r $(PackageTargetRid)</PublishArgs>
+      <PublishArgs>--output $(CoreHostLockedDir) -r $(PackageTargetRid)</PublishArgs>
+      <PublishArgs>$(PublishArgs) /p:BaseIntermediateOutputPath=$(JsonDir)/ /p:Framework=$(Framework) /p:HostFullVersion=$(HostFullVersion) /p:RuntimeIdentifiers=$(PackageTargetRid)</PublishArgs>
     </PropertyGroup>
 
     <RemoveDir Directories="$(CoreHostLockedDir)" />
 
-    <Exec Command="$(DotnetToolCommand) publish $(PublishArgs)"
-          WorkingDirectory="$(JsonDir)"
+    <Exec Command="$(DotnetToolCommand) publish $(PublishArgs) $(LockedCoreHostProject)"
           EnvironmentVariables="NUGET_PACKAGES=$(PackagesDir)" />
   </Target>
 
