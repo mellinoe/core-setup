@@ -10,9 +10,25 @@
     <NuGetTargetMoniker>.NETCoreApp,Version=v2.0</NuGetTargetMoniker>
     <PackageTargetFramework>netcoreapp2.0</PackageTargetFramework>
     <PrimaryPackage>Microsoft.Private.CoreFx.NETCoreApp</PrimaryPackage>
+    <RidSpecificAssets>true</RidSpecificAssets>
+    <NuGetRuntimeIdentifier>$(PackageRid)</NuGetRuntimeIdentifier>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="project.json" />
+    <PackageReference Include="Microsoft.Private.CoreFx.NETCoreApp">
+      <Version>4.4.0-preview2-25226-02</Version>
+    </PackageReference>
+    <PackageReference Include="transport.Microsoft.NETCore.Runtime.CoreCLR">
+      <Version>2.0.0-preview2-25226-02</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.DiaSymReader.Native">
+      <Version>1.4.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NETCore.Platforms">
+      <Version>2.0.0-preview2-25226-02</Version>
+    </PackageReference>
+    <PackageReference Include="NETStandard.Library">
+      <Version>2.0.0-preview2-25226-0</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup Condition="'$(NuGetRuntimeIdentifier)' == ''">
     <!-- Bring in Platforms for RID graph, NETStandard.Library for build-tools, 

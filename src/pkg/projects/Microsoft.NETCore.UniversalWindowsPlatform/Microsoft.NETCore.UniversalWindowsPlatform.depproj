@@ -10,9 +10,45 @@
     <NuGetTargetMoniker>UAP,Version=v10.1</NuGetTargetMoniker>
     <PackageTargetFramework>uap10.1</PackageTargetFramework>
     <PrimaryPackage>Microsoft.Private.CoreFx.UAP</PrimaryPackage>
+    <RidSpecificAssets>true</RidSpecificAssets>
+    <NuGetRuntimeIdentifier>$(PackageRid)</NuGetRuntimeIdentifier>
+
+    <!-- TODO: Move to dependencies.props -->
+    <CoreFxVersion>4.4.0-beta-25205-01</CoreFxVersion>
+    <CoreFxUapVersion>4.4.0-preview2-25226-02</CoreFxUapVersion>
+    <NetStandardLibraryVersion>2.0.0-preview2-25226-01</NetStandardLibraryVersion>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="project.json" />
+    <PackageReference Include="Microsoft.Net.Native.Compiler">
+      <Version>1.6.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Private.CoreFx.UAP">
+      <Version>$(CoreFxUapVersion)</Version>
+    </PackageReference>
+    <PackageReference Include="transport.Microsoft.NETCore.Runtime.CoreCLR">
+      <Version>$(CoreCLRVersion)</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NETCore.Platforms">
+      <Version>$(CoreCLRVersion)</Version>
+    </PackageReference>
+    <PackageReference Include="NETStandard.Library">
+      <Version>$(NetStandardLibraryVersion)</Version>
+    </PackageReference>
+    <PackageReference Include="System.ServiceModel.Duplex">
+      <Version>$(CoreFxVersion)</Version>
+    </PackageReference>
+    <PackageReference Include="System.ServiceModel.Http">
+      <Version>$(CoreFxVersion)</Version>
+    </PackageReference>
+    <PackageReference Include="System.ServiceModel.NetTcp">
+      <Version>$(CoreFxVersion)</Version>
+    </PackageReference>
+    <PackageReference Include="System.ServiceModel.Primitives">
+      <Version>$(CoreFxVersion)</Version>
+    </PackageReference>
+    <PackageReference Include="System.ServiceModel.Security">
+      <Version>$(CoreFxVersion)</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup Condition="'$(NuGetRuntimeIdentifier)' == ''">
     <!-- Bring in Platforms for RID graph, NETStandard.Library for build-tools, 
