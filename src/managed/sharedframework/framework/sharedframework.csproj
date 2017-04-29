@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>$(TargetFramework)</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <RuntimeIdentifiers>$(RID)</RuntimeIdentifiers>
+    <RuntimeFrameworkVersion>$(NetCoreAppVersion)</RuntimeFrameworkVersion>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+<!--
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETCore.App" Version="$(NetCoreAppVersion)" />
+  </ItemGroup>
+-->
+</Project>
