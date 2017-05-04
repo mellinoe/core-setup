@@ -36,7 +36,7 @@
 
     <!-- Generate Version files -->
     <ItemGroup>
-      <HostFiles Include="apphost;dotnet;hostfxr;hostpolicy" />
+      <HostFiles Include="apphost;apphostw;dotnet;hostfxr;hostpolicy" />
     </ItemGroup>
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Properties="GenerateNativeVersionInfo=true;AssemblyName=%(HostFiles.Identity);NativeVersionFileDir=$(IntermediateOutputRootPath)hostResourceFiles\%(HostFiles.Identity);NativeVersionHeaderFile=$(IntermediateOutputRootPath)hostResourceFiles\%(HostFiles.Identity)\version_info.h"
@@ -54,6 +54,8 @@
       <CMakeOutput Include="$(IntermediateOutputRootPath)corehost\cli\exe\dotnet\$(ConfigurationGroup)\dotnet.pdb" />
       <CMakeOutput Include="$(IntermediateOutputRootPath)corehost\cli\exe\apphost\$(ConfigurationGroup)\apphost.exe" />
       <CMakeOutput Include="$(IntermediateOutputRootPath)corehost\cli\exe\apphost\$(ConfigurationGroup)\apphost.pdb" />
+      <CMakeOutput Include="$(IntermediateOutputRootPath)corehost\cli\exe\apphostw\$(ConfigurationGroup)\apphostw.exe" />
+      <CMakeOutput Include="$(IntermediateOutputRootPath)corehost\cli\exe\apphostw\$(ConfigurationGroup)\apphostw.pdb" />
       <CMakeOutput Include="$(IntermediateOutputRootPath)corehost\cli\dll\$(ConfigurationGroup)\$(HostPolicyBaseName)" />
       <CMakeOutput Include="$(IntermediateOutputRootPath)corehost\cli\dll\$(ConfigurationGroup)\hostpolicy.pdb" />
       <CMakeOutput Include="$(IntermediateOutputRootPath)corehost\cli\fxr\$(ConfigurationGroup)\$(DotnetHostFxrBaseName)" />

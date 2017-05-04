@@ -5,6 +5,10 @@
     <ArchitectureSpecificNativeFile Include="$(DotNetHostBinDir)/apphost.pdb">
       <IsSymbolFile>true</IsSymbolFile>
     </ArchitectureSpecificNativeFile>
+    <ArchitectureSpecificNativeFile Include="$(DotNetHostBinDir)/apphostw.exe" />
+    <ArchitectureSpecificNativeFile Include="$(DotNetHostBinDir)/apphostw.pdb">
+      <IsSymbolFile>true</IsSymbolFile>
+    </ArchitectureSpecificNativeFile>
 
     <File Include="@(ArchitectureSpecificNativeFile)">
       <TargetPath>runtimes/$(PackageTargetRuntime)/native</TargetPath>
