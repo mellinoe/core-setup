@@ -38,7 +38,11 @@ if(WIN32)
     list(APPEND RESOURCES ../../native.rc)
 endif()
 
-add_executable(${DOTNET_HOST_EXE_NAME} ${SOURCES} ${RESOURCES})
+if(DOTNET_HOST_SUBSYSTEM_WINDOWS)
+    add_executable(${DOTNET_HOST_EXE_NAME} WIN32 ${SOURCES} ${RESOURCES})
+else()
+    add_executable(${DOTNET_HOST_EXE_NAME} ${SOURCES} ${RESOURCES})
+endif()
 install(TARGETS ${DOTNET_HOST_EXE_NAME} DESTINATION bin)
 
 # Specify the import library to link against for Arm32 build since the default set is minimal

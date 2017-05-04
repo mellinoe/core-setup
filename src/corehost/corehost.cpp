@@ -213,13 +213,12 @@ static char sccsid[] = "@(#)"            \
                        ;
 
 #if defined(_WIN32)
-int __cdecl wmain(const int argc, const pal::char_t* argv[])
+int __cdecl wmain(const int argc, const pal::char_t** argv)
 #else
 int main(const int argc, const pal::char_t* argv[])
 #endif
 {
     trace::setup();
-
     if (trace::is_enabled())
     {
         trace::info(_X("--- Invoked %s [version: %s, commit hash: %s] main = {"), CURHOST_TYPE, _STRINGIFY(CUREXE_PKG_VER), _STRINGIFY(REPO_COMMIT_HASH));
@@ -232,4 +231,3 @@ int main(const int argc, const pal::char_t* argv[])
 
     return run(argc, argv);
 }
-
