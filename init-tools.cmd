@@ -16,6 +16,7 @@ set PROJECT_JSON_FILE=%PROJECT_JSON_PATH%\project.json
 set PROJECT_JSON_CONTENTS={ "dependencies": { "Microsoft.DotNet.BuildTools": "%BUILDTOOLS_VERSION%" }, "frameworks": { "netcoreapp1.0": { } } }
 set BUILD_TOOLS_SEMAPHORE=%PROJECT_JSON_PATH%\init-tools.completed
 set DUMMY_GLOBAL_JSON_PATH=%PACKAGES_DIR%global.json
+set INIT_TOOLS_RESTORE_PROJECT=%~dp0init-tools.msbuild
 
 :: We do not want to run the first-time experience.
 set DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
@@ -78,8 +79,8 @@ if NOT exist "%DOTNET_LOCAL_PATH%" (
 
 if exist "%BUILD_TOOLS_PATH%" goto :afterbuildtoolsrestore
 echo Restoring BuildTools version %BUILDTOOLS_VERSION%...
-echo Running: "%DOTNET_CMD%" restore "%PROJECT_JSON_FILE%" --no-cache --packages %PACKAGES_DIR% --source "%BUILDTOOLS_SOURCE%" >> "%INIT_TOOLS_LOG%"
-call "%DOTNET_CMD%" restore "%PROJECT_JSON_FILE%" --no-cache --packages %PACKAGES_DIR% --source "%BUILDTOOLS_SOURCE%" >> "%INIT_TOOLS_LOG%"
+echo Running: "%DOTNET_SDK_CMD%" restore "%INIT_TOOLS_RESTORE_PROJECT%" --no-cache --packages %PACKAGES_DIR% --source "%BUILDTOOLS_SOURCE%"  /p:BuildToolsPackageVersion=%BUILDTOOLS_VERSION%>> "%INIT_TOOLS_LOG%"
+call "%DOTNET_SDK_CMD%" restore "%INIT_TOOLS_RESTORE_PROJECT%" --no-cache --packages %PACKAGES_DIR% --source "%BUILDTOOLS_SOURCE%" /p:BuildToolsPackageVersion=%BUILDTOOLS_VERSION% >> "%INIT_TOOLS_LOG%"
 if NOT exist "%BUILD_TOOLS_PATH%init-tools.cmd" (
   echo ERROR: Could not restore build tools correctly. See '%INIT_TOOLS_LOG%' for more details. 1>&2
   exit /b 1
@@ -88,24 +89,14 @@ if NOT exist "%BUILD_TOOLS_PATH%init-tools.cmd" (
 :afterbuildtoolsrestore
 
 echo Initializing BuildTools...
-echo Running: "%BUILD_TOOLS_PATH%init-tools.cmd" "%~dp0" "%DOTNET_CMD%" "%TOOLRUNTIME_DIR%" >> "%INIT_TOOLS_LOG%"
-call "%BUILD_TOOLS_PATH%init-tools.cmd" "%~dp0" "%DOTNET_CMD%" "%TOOLRUNTIME_DIR%" >> "%INIT_TOOLS_LOG%"
+echo Running: "%BUILD_TOOLS_PATH%init-tools.cmd" "%~dp0" "%DOTNET_SDK_CMD%" "%TOOLRUNTIME_DIR%" >> "%INIT_TOOLS_LOG%"
+call "%BUILD_TOOLS_PATH%init-tools.cmd" "%~dp0" "%DOTNET_SDK_CMD%" "%TOOLRUNTIME_DIR%" >> "%INIT_TOOLS_LOG%"
 set INIT_TOOLS_ERRORLEVEL=%ERRORLEVEL%
 if not [%INIT_TOOLS_ERRORLEVEL%]==[0] (
   echo ERROR: An error occured when trying to initialize the tools. Please check '%INIT_TOOLS_LOG%' for more details. 1>&2
   exit /b %INIT_TOOLS_ERRORLEVEL%
 )
 
-echo Updating CLI NuGet Frameworks map...
-robocopy "%TOOLRUNTIME_DIR%" "%TOOLRUNTIME_DIR%\dotnetcli\sdk\%DOTNET_VERSION%" NuGet.Frameworks.dll /XO >> "%INIT_TOOLS_LOG%"
-set UPDATE_CLI_ERRORLEVEL=%ERRORLEVEL%
-if %UPDATE_CLI_ERRORLEVEL% GTR 1 (
-  echo ERROR: Failed to update Nuget for CLI {Error level %UPDATE_CLI_ERRORLEVEL%}. Please check '%INIT_TOOLS_LOG%' for more details. 1>&2
-  exit /b %UPDATE_CLI_ERRORLEVEL%
-)
-
-if exist %~dp0tools-override xcopy /Y/e/s %~dp0tools-override\* %TOOLRUNTIME_DIR%
- 
 :: Create sempahore file
 echo Done initializing tools.
 echo Init-Tools.cmd completed for BuildTools Version: %BUILDTOOLS_VERSION% > "%BUILD_TOOLS_SEMAPHORE%"

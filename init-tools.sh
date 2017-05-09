@@ -18,6 +18,7 @@ __PROJECT_JSON_FILE=$__PROJECT_JSON_PATH/project.json
 __PROJECT_JSON_CONTENTS="{ \"dependencies\": { \"Microsoft.DotNet.BuildTools\": \"$__BUILD_TOOLS_PACKAGE_VERSION\" }, \"frameworks\": { \"netcoreapp1.0\": { } } }"
 __INIT_TOOLS_DONE_MARKER=$__PROJECT_JSON_PATH/done
 __DUMMY_GLOBAL_JSON_PATH=$__PACKAGES_DIR/global.json
+__INIT_TOOLS_RESTORE_PROJECT=$__scriptpath/init-tools.msbuild
 
 # We do not want to run the first-time experience.
 export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
@@ -168,33 +169,28 @@ if [ ! -e $__INIT_TOOLS_DONE_MARKER ]; then
         echo "Copying $BUILD_TOOLS_TOOL_DIR to $__TOOLRUNTIME_DIR" >> $__init_tools_log
         cp -r $BUILD_TOOLS_TOOL_DIR/* $__TOOLRUNTIME_DIR
     else
-        if [ ! -d "$__PROJECT_JSON_PATH" ]; then mkdir "$__PROJECT_JSON_PATH"; fi
-        echo $__PROJECT_JSON_CONTENTS > "$__PROJECT_JSON_FILE"
-
         if [ ! -e $__BUILD_TOOLS_PATH ]; then
             echo "Restoring BuildTools version $__BUILD_TOOLS_PACKAGE_VERSION..."
-            echo "Running: $__DOTNET_CMD restore \"$__PROJECT_JSON_FILE\" --no-cache --packages $__PACKAGES_DIR --source $__BUILDTOOLS_SOURCE" >> $__init_tools_log
-            $__DOTNET_CMD restore "$__PROJECT_JSON_FILE" --no-cache --packages $__PACKAGES_DIR --source $__BUILDTOOLS_SOURCE >> $__init_tools_log
+            echo "Running: $__DOTNET_SDK_CMD restore \"$__INIT_TOOLS_RESTORE_PROJECT\" --no-cache --packages $__PACKAGES_DIR --source $__BUILDTOOLS_SOURCE" /p:BuildToolsPackageVersion=$__BUILD_TOOLS_PACKAGE_VERSION >> $__init_tools_log
+            $__DOTNET_SDK_CMD restore "$__INIT_TOOLS_RESTORE_PROJECT" --no-cache --packages $__PACKAGES_DIR --source $__BUILDTOOLS_SOURCE /p:BuildToolsPackageVersion=$__BUILD_TOOLS_PACKAGE_VERSION >> $__init_tools_log
             if [ ! -e "$__BUILD_TOOLS_PATH/init-tools.sh" ]; then echo "ERROR: Could not restore build tools correctly. See '$__init_tools_log' for more details."1>&2; fi
         fi
 
         echo "Initializing BuildTools..."
-        echo "Running: $__BUILD_TOOLS_PATH/init-tools.sh $__scriptpath $__DOTNET_CMD $__TOOLRUNTIME_DIR" >> $__init_tools_log
-        $__BUILD_TOOLS_PATH/init-tools.sh $__scriptpath $__DOTNET_CMD $__TOOLRUNTIME_DIR >> $__init_tools_log
+        echo "Running: $__BUILD_TOOLS_PATH/init-tools.sh $__scriptpath $__DOTNET_SDK_CMD $__TOOLRUNTIME_DIR" >> $__init_tool
+        # Executables restored with .NET Core 2.0 do not have executable permission flags. https://github.com/NuGet/Home/issues/4424
+        chmod +x $__BUILD_TOOLS_PATH/init-tools.sh
+        $__BUILD_TOOLS_PATH/init-tools.sh $__scriptpath $__DOTNET_SDK_CMD $__TOOLRUNTIME_DIR >> $__init_tools_log
         if [ "$?" != "0" ]; then
             echo "ERROR: An error occured when trying to initialize the tools. Please check '$__init_tools_log' for more details."1>&2
             exit 1
         fi
     fi
 
-    if [ $__PATCH_CLI_NUGET_FRAMEWORKS -eq 1 ]; then
-        echo "Updating CLI NuGet Frameworks map..."
-        cp $__TOOLRUNTIME_DIR/NuGet.Frameworks.dll $__TOOLRUNTIME_DIR/dotnetcli/sdk/$__DOTNET_TOOLS_VERSION >> $__init_tools_log
-        if [ "$?" != "0" ]; then
-            echo "ERROR: An error occured when updating Nuget for CLI . Please check '$__init_tools_log' for more details."1>&2
-            exit 1
-        fi
-    fi
+    echo "Making all .sh files executable under Tools."
+    # Executables restored with .NET Core 2.0 do not have executable permission flags. https://github.com/NuGet/Home/issues/4424
+    ls $__scriptpath/Tools/*.sh | xargs chmod +x
+    ls $__scriptpath/Tools/scripts/docker/*.sh | xargs chmod +x
 
     if [ -e $__scriptpath/tools-override/crossgen.sh ]; then 
         $__scriptpath/tools-override/crossgen.sh $__scriptpath/Tools
