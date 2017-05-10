@@ -82,5 +82,7 @@
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), dir.targets))\dir.targets" />
 
+  <Target Name="PrintStuffPkgProj" BeforeTargets="Build"><Message Importance="high" Text="PKGPROJ: PackageTargetRuntime: $(PackageTargetRuntime)" /></Target>
+
   <Target Name="GetPackageReport" />
 </Project>

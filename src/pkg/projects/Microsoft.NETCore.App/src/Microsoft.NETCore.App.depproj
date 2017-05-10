@@ -8,7 +8,7 @@
          null-refs when this isn't set and an analyzer is in the packages -->
     <Language>unused</Language>
     <NuGetTargetMoniker>.NETCoreApp,Version=v2.0</NuGetTargetMoniker>
-    <NuGetTargetMonikerShort>.NETCoreApp,Version=v2.0</NuGetTargetMonikerShort>
+    <NuGetTargetMonikerShort>netcoreapp2.0</NuGetTargetMonikerShort>
     <PackageTargetFramework>netcoreapp2.0</PackageTargetFramework>
     <PrimaryPackage>Microsoft.Private.CoreFx.NETCoreApp</PrimaryPackage>
     <CrossGenOutputPath>$(CrossGenRootPath)/$(MSBuildProjectName)/$(NuGetRuntimeIdentifier)</CrossGenOutputPath>
@@ -16,27 +16,9 @@
     <RestorePackages>true</RestorePackages>
     <RidSpecificAssets>true</RidSpecificAssets>
     <ProjectJson>$(MSBuildThisFileDirectory)packagereferences.msbuild</ProjectJson>
-    <HasRuntimePackages>true</HasRuntimePackages>
+    <RestoreOutputPath>$(MSBuildThisFileDirectory)/obj</RestoreOutputPath>
   </PropertyGroup>
-  <!-- In packagereferences.msbuild
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Private.CoreFx.NETCoreApp">
-      <Version>4.4.0-preview2-25303-04</Version>
-    </PackageReference>
-    <PackageReference Include="transport.Microsoft.NETCore.Runtime.CoreCLR">
-      <Version>2.0.0-preview2-25303-02</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.DiaSymReader.Native">
-      <Version>1.4.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.NETCore.Platforms">
-      <Version>2.0.0-preview2-25303-04</Version>
-    </PackageReference>
-    <PackageReference Include="NETStandard.Library">
-      <Version>2.0.0-preview2-25303-0</Version>
-    </PackageReference>
-  </ItemGroup>
--->
+
   <ItemGroup Condition="'$(NuGetRuntimeIdentifier)' == ''">
     <!-- Bring in Platforms for RID graph, NETStandard.Library for build-tools, 
          Targets for an empty runtime.json to reduce conflicts from 1.x packages -->
@@ -47,9 +29,16 @@
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), dir.targets))\dir.targets" />
 
+  <Target Name="PrintStuffBeforeDepprojRestore" BeforeTargets="RestorePackages"><Message Importance="high" Text="[PrintStuffBeforeDepprojRestore] NuGetRuntimeIdentifier: $(NuGetRuntimeIdentifier)" /></Target>
+
   <!-- get paths from packages that are needed for cross-gen and other includes,
        only relevant for runtime-specific builds -->
   <Target Name="GetPackagePaths" Condition="'$(NuGetRuntimeIdentifier)' != ''" DependsOnTargets="ResolveNuGetPackages">
+    <Message Importance="high" Text="DEPPROJ GETPACKAGEPATHS: NuGetRuntimeIdentifier: $(NuGetRuntimeIdentifier)" />
+    <Message Importance="high" Text="DEPPROJ GETPACKAGEPATHS: ReferenceCopyLocalPaths: %(ReferenceCopyLocalPaths.FileName)%(ReferenceCopyLocalPaths.Extension)" />
+    <Message Importance="high" Text="DEPPROJ GETPACKAGEPATHS: (LibraryFilePrefix)coreclr(LibraryFileExtension): $(LibraryFilePrefix)coreclr$(LibraryFileExtension)" />
+    <Message Importance="high" Text="DEPPROJ GETPACKAGEPATHS: PackageTargetRuntime: $(PackageTargetRuntime)" />
+
     <ItemGroup  Condition="'$(NuGetRuntimeIdentifier)' != ''">
       <_runtimeCLR Include="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.FileName)%(ReferenceCopyLocalPaths.Extension)' == '$(LibraryFilePrefix)coreclr$(LibraryFileExtension)'" />
       <_runtimeCoreLib Include="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.FileName)%(ReferenceCopyLocalPaths.Extension)' == 'System.Private.CoreLib.dll'" />
@@ -57,6 +46,7 @@
       <_fxSystemRuntime Include="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.FileName)%(ReferenceCopyLocalPaths.Extension)' == 'System.Runtime.dll'" />
     </ItemGroup>
 
+    <Message Importance="high" Text="_runtimeCLR: @(_runtimeCLR)" />
     <PropertyGroup>
       <_crossDir Condition="'$(NuGetRuntimeIdentifier)' == 'win8-arm' or '$(NuGetRuntimeIdentifier)' == 'win-arm'">/x86_arm</_crossDir>
       <_crossDir Condition="'$(NuGetRuntimeIdentifier)' == 'win10-arm64' or '$(NuGetRuntimeIdentifier)' == 'win-arm64'">/x64_arm64</_crossDir>
@@ -241,7 +231,7 @@
  
   <!-- Run crossgen -->
   <Target Name="Build" DependsOnTargets="CrossGen;GetFilesToPackage" />
-  
+
   <!-- remove when fixing https://github.com/dotnet/buildtools/issues/1273 -->
   <Target Name="DetermineRuntimeDependencies" />
 </Project>
