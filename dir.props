@@ -103,6 +103,7 @@
 
   <!-- list of projects to perform batch restore -->
   <ItemGroup>
+    <SdkRestoreProjects Include="$(MSBuildThisFileDirectory)src\pkg\deps\deps.csproj" />
     <SdkRestoreProjects Include="$(MSBuildThisFileDirectory)src\managed\Microsoft.DotNet.PlatformAbstractions\Microsoft.DotNet.PlatformAbstractions.csproj" />
     <SdkRestoreProjects Include="$(MSBuildThisFileDirectory)src\managed\Microsoft.Extensions.DependencyModel\Microsoft.Extensions.DependencyModel.csproj">
       <!-- Workaround https://github.com/NuGet/Home/issues/4337 -->
