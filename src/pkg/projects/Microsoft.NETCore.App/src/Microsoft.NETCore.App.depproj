@@ -14,9 +14,10 @@
     <CrossGenOutputPath>$(CrossGenRootPath)/$(MSBuildProjectName)/$(NuGetRuntimeIdentifier)</CrossGenOutputPath>
     <ContainsPackageReferences>true</ContainsPackageReferences>
     <RestorePackages>true</RestorePackages>
-    <RidSpecificAssets>true</RidSpecificAssets>
+    <RidSpecificAssets Condition="'$(NuGetRuntimeIdentifier)' != ''">true</RidSpecificAssets>
     <ProjectJson>$(MSBuildThisFileDirectory)packagereferences.msbuild</ProjectJson>
-    <RestoreOutputPath>$(MSBuildThisFileDirectory)/obj</RestoreOutputPath>
+    <RestoreOutputPath>$(IntermediateOutputPath)$(NuGetRuntimeIdentifier)</RestoreOutputPath>
+    <AdditionalRestoreArgs>/p:RestoreOutputPath=$(RestoreOutputPath)</AdditionalRestoreArgs>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(NuGetRuntimeIdentifier)' == ''">
@@ -29,15 +30,16 @@
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), dir.targets))\dir.targets" />
 
-  <Target Name="PrintStuffBeforeDepprojRestore" BeforeTargets="RestorePackages"><Message Importance="high" Text="[PrintStuffBeforeDepprojRestore] NuGetRuntimeIdentifier: $(NuGetRuntimeIdentifier)" /></Target>
-
   <!-- get paths from packages that are needed for cross-gen and other includes,
        only relevant for runtime-specific builds -->
   <Target Name="GetPackagePaths" Condition="'$(NuGetRuntimeIdentifier)' != ''" DependsOnTargets="ResolveNuGetPackages">
+    <!-- TODO REMOVE! 
     <Message Importance="high" Text="DEPPROJ GETPACKAGEPATHS: NuGetRuntimeIdentifier: $(NuGetRuntimeIdentifier)" />
     <Message Importance="high" Text="DEPPROJ GETPACKAGEPATHS: ReferenceCopyLocalPaths: %(ReferenceCopyLocalPaths.FileName)%(ReferenceCopyLocalPaths.Extension)" />
     <Message Importance="high" Text="DEPPROJ GETPACKAGEPATHS: (LibraryFilePrefix)coreclr(LibraryFileExtension): $(LibraryFilePrefix)coreclr$(LibraryFileExtension)" />
     <Message Importance="high" Text="DEPPROJ GETPACKAGEPATHS: PackageTargetRuntime: $(PackageTargetRuntime)" />
+    <Message Importance="high" Text="DEPPROJ GETPACKAGEPATHS: ** ** ** ** '%(ReferenceCopyLocalPaths.FileName)%(ReferenceCopyLocalPaths.Extension)' == '$(LibraryFilePrefix)coreclr$(LibraryFileExtension)' ** ** ** **" />
+  -->
 
     <ItemGroup  Condition="'$(NuGetRuntimeIdentifier)' != ''">
       <_runtimeCLR Include="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.FileName)%(ReferenceCopyLocalPaths.Extension)' == '$(LibraryFilePrefix)coreclr$(LibraryFileExtension)'" />
@@ -46,7 +48,6 @@
       <_fxSystemRuntime Include="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.FileName)%(ReferenceCopyLocalPaths.Extension)' == 'System.Runtime.dll'" />
     </ItemGroup>
 
-    <Message Importance="high" Text="_runtimeCLR: @(_runtimeCLR)" />
     <PropertyGroup>
       <_crossDir Condition="'$(NuGetRuntimeIdentifier)' == 'win8-arm' or '$(NuGetRuntimeIdentifier)' == 'win-arm'">/x86_arm</_crossDir>
       <_crossDir Condition="'$(NuGetRuntimeIdentifier)' == 'win10-arm64' or '$(NuGetRuntimeIdentifier)' == 'win-arm64'">/x64_arm64</_crossDir>
@@ -81,8 +82,7 @@
       <_requiredProperty Include="_runtimePackagePath;_coreLibDirectory;_crossGenPath;_jitPath;_fxLibDirectory" />
     </ItemGroup>
 
-    <Message Text="%(_requiredProperty.Identity): $(%(_requiredProperty.Identity))" />
-    <Error Condition="'$(%(_requiredProperty.Identity))' == ''" Text="Required property %(_requiredProperty.Identity) was not set." />
+    <Error Condition="'$(%(_requiredProperty.Identity))' == ''" Text="Required property %(_requiredProperty.Identity) was not set. RestoreOutputPath = $(RestoreOutputPath), ReferenceCopyLocalPaths = @(ReferenceCopyLocalPaths)" />
     <Error Condition="!Exists('$(%(_requiredProperty.Identity))')" Text="Required property %(_requiredProperty.Identity) with value '$(%(_requiredProperty.Identity))' does not exist." />
   </Target>
 
@@ -150,6 +150,7 @@
     <PropertyGroup>
       <_crossGenIntermediatePath>$(IntermediateOutputPath)/crossgen</_crossGenIntermediatePath>
     </PropertyGroup>
+
     <ItemGroup>
       <_filesToCrossGen Include="@(FilesToPackage)" 
                         Condition="'%(FilesToPackage.IsNative)' != 'true' AND '%(FileName)' != 'System.Private.CoreLib' AND '%(FileName)' != 'mscorlib' AND '%(Extension)' == '.dll'">

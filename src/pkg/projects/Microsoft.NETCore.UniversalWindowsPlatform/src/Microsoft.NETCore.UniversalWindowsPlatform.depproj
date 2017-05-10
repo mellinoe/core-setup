@@ -8,12 +8,16 @@
          null-refs when this isn't set and an analyzer is in the packages -->
     <Language>unused</Language>
     <NuGetTargetMoniker>UAP,Version=v10.1</NuGetTargetMoniker>
+    <NuGetTargetMonikerShort>uap10.1</NuGetTargetMonikerShort>
     <PackageTargetFramework>uap10.1</PackageTargetFramework>
     <PrimaryPackage>Microsoft.Private.CoreFx.UAP</PrimaryPackage>
+    <ContainsPackageReferences>true</ContainsPackageReferences>
+    <RestorePackages>true</RestorePackages>
+    <RidSpecificAssets Condition="'$(NuGetRuntimeIdentifier)' != ''">true</RidSpecificAssets>
+    <ProjectJson>$(MSBuildThisFileDirectory)packagereferences.msbuild</ProjectJson>
+    <RestoreOutputPath>$(IntermediateOutputPath)$(NuGetRuntimeIdentifier)</RestoreOutputPath>
+    <AdditionalRestoreArgs>/p:RestoreOutputPath=$(RestoreOutputPath)</AdditionalRestoreArgs>
   </PropertyGroup>
-  <ItemGroup>
-    <None Include="project.json" />
-  </ItemGroup>
   <ItemGroup Condition="'$(NuGetRuntimeIdentifier)' == ''">
     <!-- Bring in Platforms for RID graph, NETStandard.Library for build-tools, 
          Targets for an empty runtime.json to reduce conflicts from 1.x packages,
@@ -93,7 +97,7 @@
   <Target Name="GetDependenciesToPackage" Condition="'@(DependenciesToPackage)' != ''" DependsOnTargets="ResolveNuGetPackages" Returns="@(_DependenciesToPackageWithVersion)">
     <!-- hack because current nuget task doesn't return version for ReferencedNuGetPackages,
          can be removed once we switch to msbuild-based nuget & use PackageReference-->
-    <ReadLinesFromFile File="$(ProjectJson)">
+    <ReadLinesFromFile File="$(MSBuildThisFileDirectory)project.lock.json">
       <Output TaskParameter="Lines" ItemName="ProjectJsonLines" />
     </ReadLinesFromFile>
 

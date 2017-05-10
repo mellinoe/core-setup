@@ -93,7 +93,11 @@
       <AdditionalProperties>PackageTargetRuntime=%(Identity);NuGetRuntimeIdentifier=%(Identity);Platform=%(Platform)</AdditionalProperties>
     </_project>
 
-    <Project Include="@(_project->'$(MSBuildProjectName)$(_projectExtension)')" />
+    <Project Include="@(_project->'$(MSBuildProjectName)$(_projectExtension)')">
+      <Platform>%(Platform)</Platform>
+      <PackageTargetRuntime>%(PackageTargetRuntime)</PackageTargetRuntime>
+      <AdditionalProperties>%(AdditionalProperties)</AdditionalProperties>
+    </Project>
   </ItemGroup>
 
   <ItemGroup Condition="'$(PackageTargetRuntime)' == '' and '$(HasRuntimePackages)' != 'false'">
